@@ -3,7 +3,9 @@ package dev.rivu.moviesearchomdb.data.injection
 import android.content.Context
 import dagger.Module
 import dagger.Provides
+import dev.rivu.moviesearchomdb.data.IMovieRepository
 import dev.rivu.moviesearchomdb.data.MovieDataStore
+import dev.rivu.moviesearchomdb.data.MovieRepository
 import dev.rivu.moviesearchomdb.data.local.LocalMovieDataStore
 import dev.rivu.moviesearchomdb.data.local.MovieSearchDB
 import dev.rivu.moviesearchomdb.data.local.movies.MovieDao
@@ -44,4 +46,11 @@ class DataModule(val applicationContext: Context) {
     @Named("remote")
     fun provideRemoteDataStore(movieApi: MovieApi): MovieDataStore =
         RemoteMovieDataStore(movieApi)
+
+    @Provides
+    @FeatureScope
+    fun provideRepository(
+        @Named("local") localDataStore: MovieDataStore,
+        @Named("remote") remoteDataStore: MovieDataStore
+    ): IMovieRepository = MovieRepository(localDataStore, remoteDataStore)
 }
