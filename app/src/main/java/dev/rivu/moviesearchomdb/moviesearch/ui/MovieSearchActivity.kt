@@ -1,6 +1,6 @@
 package dev.rivu.moviesearchomdb.moviesearch.ui
 
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -8,19 +8,17 @@ import dev.rivu.moviesearchomdb.base.BaseActivity
 import dev.rivu.moviesearchomdb.databinding.ActivityMovieSearchBinding
 import dev.rivu.moviesearchomdb.moviesearch.data.model.Movie
 import dev.rivu.moviesearchomdb.moviesearch.injection.inject
-import dev.rivu.moviesearchomdb.moviesearch.presentation.IMovieSearchPresenter
-import dev.rivu.moviesearchomdb.moviesearch.presentation.IMovieSearchView
+import dev.rivu.moviesearchomdb.moviesearch.presentation.MovieSearchViewModel
 import dev.rivu.moviesearchomdb.utils.gone
 import dev.rivu.moviesearchomdb.utils.visible
 import timber.log.Timber
 import javax.inject.Inject
 
 class MovieSearchActivity :
-    BaseActivity<IMovieSearchView, IMovieSearchPresenter, ActivityMovieSearchBinding>(),
-    IMovieSearchView {
+    BaseActivity<ActivityMovieSearchBinding, MovieSearchViewModel>() {
 
     @Inject
-    override lateinit var presenter: IMovieSearchPresenter
+    override lateinit var viewModel: MovieSearchViewModel
 
     @Inject
     lateinit var adapter: MovieSearchAdapter
@@ -44,22 +42,33 @@ class MovieSearchActivity :
     }
 
     override fun bindPresentation() {
-        presenter.attachView(this)
-        presenter.searchMovies("john")
+        viewModel.searchResults
+            .observe(this, Observer {
+                showMovies(it)
+            })
+        viewModel.searchSuggestions
+            .observe(this, Observer {
+                showQueriesSuggestions(it)
+            })
+        viewModel.error
+            .observe(this, Observer {
+                showError(it)
+            })
+        viewModel.searchMovies("jack")
     }
 
-    override fun showMovies(moviesList: List<Movie>) {
+    fun showMovies(moviesList: List<Movie>) {
         binding.tvError.gone()
         binding.rvMovies.visible()
         Timber.d("$moviesList")
         adapter.submitList(moviesList)
     }
 
-    override fun showQueriesSuggestions(queries: List<String>) {
+    fun showQueriesSuggestions(queries: List<String>) {
         Timber.d("$queries")
     }
 
-    override fun showError(errorDetails: String) {
+    fun showError(errorDetails: String) {
         binding.tvError.text = errorDetails
         binding.tvError.visible()
     }

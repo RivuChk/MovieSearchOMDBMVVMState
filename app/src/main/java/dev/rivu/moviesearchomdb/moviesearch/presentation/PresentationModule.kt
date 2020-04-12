@@ -10,11 +10,4 @@ class PresentationModule {
     @Provides
     @FeatureScope
     fun providesSchedulerProvider(): ISchedulerProvider = SchedulerProvider()
-
-    @Provides
-    @FeatureScope
-    fun providesMovieSearchPresenter(
-        repository: IMovieRepository,
-        schedulerProvider: ISchedulerProvider
-    ): IMovieSearchPresenter = MovieSearchPresenter(repository, schedulerProvider)
 }

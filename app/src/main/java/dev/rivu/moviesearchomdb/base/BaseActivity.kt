@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
 
-abstract class BaseActivity<V: BaseView,P: BasePresenter<V>, Binding: ViewBinding> : AppCompatActivity() {
+abstract class BaseActivity<Binding: ViewBinding, ViewModel: androidx.lifecycle.ViewModel> : AppCompatActivity() {
 
     protected abstract fun bindView(): Binding
 
@@ -16,7 +17,7 @@ abstract class BaseActivity<V: BaseView,P: BasePresenter<V>, Binding: ViewBindin
 
     protected abstract fun bindPresentation()
 
-    protected abstract var presenter: P
+    protected abstract var  viewModel: ViewModel
 
     protected lateinit var binding: Binding
 
@@ -27,10 +28,5 @@ abstract class BaseActivity<V: BaseView,P: BasePresenter<V>, Binding: ViewBindin
         setContentView(binding.root)
         initView()
         bindPresentation()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.detachView()
     }
 }

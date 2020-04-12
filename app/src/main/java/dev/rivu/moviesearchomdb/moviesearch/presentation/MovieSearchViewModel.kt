@@ -1,18 +1,27 @@
 package dev.rivu.moviesearchomdb.moviesearch.presentation
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import dev.rivu.moviesearchomdb.injection.FeatureScope
 import dev.rivu.moviesearchomdb.moviesearch.data.IMovieRepository
+import dev.rivu.moviesearchomdb.moviesearch.data.model.Movie
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import javax.inject.Inject
 
-
-class MovieSearchPresenter(
+@FeatureScope
+class MovieSearchViewModel @Inject constructor(
     private val repository: IMovieRepository,
     private val schedulerProvider: ISchedulerProvider
-) : IMovieSearchPresenter {
-    override var view: IMovieSearchView? = null
+) : ViewModel() {
 
-    override val disposables: CompositeDisposable = CompositeDisposable()
+    val disposables: CompositeDisposable = CompositeDisposable()
 
-    override fun searchMovies(searchText: String) {
+    val searchSuggestions: LiveData<List<String>> = MutableLiveData()
+    val searchResults: LiveData<List<Movie>> = MutableLiveData()
+    val error: LiveData<String> = MutableLiveData()
+
+    fun searchMovies(searchText: String) {
         if (searchText.isNotEmpty()) {
             //Clear previous requests / subscriptions
             disposables.clear()
@@ -25,13 +34,13 @@ class MovieSearchPresenter(
                     .subscribe(
                         { moviesList ->
                             if (moviesList.isNotEmpty()) {
-                                view?.showMovies(moviesList)
+                                (searchResults as MutableLiveData).postValue(moviesList)
                             } else {
-                                view?.showError("Couldn't find a movie that matches the search")
+                                (error as MutableLiveData).postValue("Couldn't find a movie that matches the search")
                             }
                         },
                         {
-                            view?.showError("There was an error fetching movies")
+                            (error as MutableLiveData).postValue("There was an error fetching movies")
                         }
                     ),
                 repository.syncMovieSearchResult(searchText)
@@ -44,19 +53,24 @@ class MovieSearchPresenter(
         }
     }
 
-    override fun getQueriesSuggestions(enteredText: String) {
+    fun getQueriesSuggestions(enteredText: String) {
         disposables.add(
             repository.getSearchSuggestion(enteredText)
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
                 .subscribe(
                     { suggestions ->
-                        view?.showQueriesSuggestions(suggestions)
+                        (searchSuggestions as MutableLiveData).postValue(suggestions)
                     },
                     {
                         //ignore this error
                     }
                 )
         )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposables.dispose()
     }
 }
