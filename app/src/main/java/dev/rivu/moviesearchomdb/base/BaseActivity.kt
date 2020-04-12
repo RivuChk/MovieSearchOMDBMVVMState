@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
 
-abstract class BaseActivity<Binding: ViewBinding, ViewModel: androidx.lifecycle.ViewModel> : AppCompatActivity() {
+abstract class BaseActivity<Binding: ViewBinding, ViewModel: androidx.lifecycle.ViewModel, in State> : AppCompatActivity() {
 
     protected abstract fun bindView(): Binding
 
@@ -29,4 +29,6 @@ abstract class BaseActivity<Binding: ViewBinding, ViewModel: androidx.lifecycle.
         initView()
         bindPresentation()
     }
+
+    protected abstract fun render(state: State)
 }

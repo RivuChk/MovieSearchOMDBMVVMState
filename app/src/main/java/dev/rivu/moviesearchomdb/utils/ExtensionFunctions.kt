@@ -11,6 +11,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import dev.rivu.moviesearchomdb.R
 
+fun emptyString(): String = ""
+
 fun View.visible() {
     visibility = View.VISIBLE
 }

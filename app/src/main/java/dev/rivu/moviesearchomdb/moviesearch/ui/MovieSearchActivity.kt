@@ -8,6 +8,7 @@ import dev.rivu.moviesearchomdb.base.BaseActivity
 import dev.rivu.moviesearchomdb.databinding.ActivityMovieSearchBinding
 import dev.rivu.moviesearchomdb.moviesearch.data.model.Movie
 import dev.rivu.moviesearchomdb.moviesearch.injection.inject
+import dev.rivu.moviesearchomdb.moviesearch.presentation.MovieSearchState
 import dev.rivu.moviesearchomdb.moviesearch.presentation.MovieSearchViewModel
 import dev.rivu.moviesearchomdb.utils.gone
 import dev.rivu.moviesearchomdb.utils.visible
@@ -15,7 +16,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MovieSearchActivity :
-    BaseActivity<ActivityMovieSearchBinding, MovieSearchViewModel>() {
+    BaseActivity<ActivityMovieSearchBinding, MovieSearchViewModel, MovieSearchState>() {
 
     @Inject
     override lateinit var viewModel: MovieSearchViewModel
@@ -42,34 +43,28 @@ class MovieSearchActivity :
     }
 
     override fun bindPresentation() {
-        viewModel.searchResults
+        viewModel.searchState
             .observe(this, Observer {
-                showMovies(it)
-            })
-        viewModel.searchSuggestions
-            .observe(this, Observer {
-                showQueriesSuggestions(it)
-            })
-        viewModel.error
-            .observe(this, Observer {
-                showError(it)
+                render(it)
             })
         viewModel.searchMovies("jack")
     }
 
-    fun showMovies(moviesList: List<Movie>) {
-        binding.tvError.gone()
-        binding.rvMovies.visible()
-        Timber.d("$moviesList")
-        adapter.submitList(moviesList)
-    }
-
-    fun showQueriesSuggestions(queries: List<String>) {
-        Timber.d("$queries")
-    }
-
-    fun showError(errorDetails: String) {
-        binding.tvError.text = errorDetails
-        binding.tvError.visible()
+    override fun render(state: MovieSearchState) {
+        when {
+            state.isLoading -> {
+                //show loading
+            }
+            state.error.isNotEmpty() -> {
+                binding.tvError.text = state.error
+                binding.tvError.visible()
+            }
+            state.movies.isNotEmpty() -> {
+                binding.tvError.gone()
+                binding.rvMovies.visible()
+                Timber.d("${state.movies}")
+                adapter.submitList(state.movies)
+            }
+        }
     }
 }

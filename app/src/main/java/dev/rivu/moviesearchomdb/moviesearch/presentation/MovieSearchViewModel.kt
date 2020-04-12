@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.rivu.moviesearchomdb.injection.FeatureScope
 import dev.rivu.moviesearchomdb.moviesearch.data.IMovieRepository
-import dev.rivu.moviesearchomdb.moviesearch.data.model.Movie
+import dev.rivu.moviesearchomdb.utils.emptyString
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import javax.inject.Inject
 
@@ -17,9 +17,7 @@ class MovieSearchViewModel @Inject constructor(
 
     val disposables: CompositeDisposable = CompositeDisposable()
 
-    val searchSuggestions: LiveData<List<String>> = MutableLiveData()
-    val searchResults: LiveData<List<Movie>> = MutableLiveData()
-    val error: LiveData<String> = MutableLiveData()
+    val searchState: LiveData<MovieSearchState> = MutableLiveData(MovieSearchState())
 
     fun searchMovies(searchText: String) {
         if (searchText.isNotEmpty()) {
@@ -34,13 +32,29 @@ class MovieSearchViewModel @Inject constructor(
                     .subscribe(
                         { moviesList ->
                             if (moviesList.isNotEmpty()) {
-                                (searchResults as MutableLiveData).postValue(moviesList)
+                                (searchState as MutableLiveData).postValue(
+                                    searchState.value!!.copy(
+                                        movies = moviesList,
+                                        error = emptyString(),
+                                        isLoading = false
+                                    )
+                                )
                             } else {
-                                (error as MutableLiveData).postValue("Couldn't find a movie that matches the search")
+                                (searchState as MutableLiveData).postValue(
+                                    searchState.value!!.copy(
+                                        error = "Couldn't find a movie that matches the search",
+                                        isLoading = false
+                                    )
+                                )
                             }
                         },
                         {
-                            (error as MutableLiveData).postValue("There was an error fetching movies")
+                            (searchState as MutableLiveData).postValue(
+                                searchState.value!!.copy(
+                                    error = "Couldn't find a movie that matches the search",
+                                    isLoading = false
+                                )
+                            )
                         }
                     ),
                 repository.syncMovieSearchResult(searchText)
@@ -60,7 +74,11 @@ class MovieSearchViewModel @Inject constructor(
                 .observeOn(schedulerProvider.ui())
                 .subscribe(
                     { suggestions ->
-                        (searchSuggestions as MutableLiveData).postValue(suggestions)
+                        (searchState as MutableLiveData).postValue(
+                            searchState.value!!.copy(
+                                suggestions = suggestions
+                            )
+                        )
                     },
                     {
                         //ignore this error
