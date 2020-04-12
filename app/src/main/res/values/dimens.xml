@@ -1,3 +1,14 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_headline">24sp</dimen>
+    <dimen name="text_body">16sp</dimen>
+    <dimen name="text_medium">18sp</dimen>
+    <dimen name="image_size">100dp</dimen>
+    <dimen name="list_item_spacing">12dp</dimen>
+    <dimen name="list_item_padding">8dp</dimen>
+
+    <dimen name="body_text_size">16sp</dimen>
+    <dimen name="apod_header_title_height">80dp</dimen>
+
+    <dimen name="card_radius_elevation">5dp</dimen>
 </resources>

@@ -33,8 +33,6 @@
             android:id="@+id/rvMovies"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -52,14 +50,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/groupMovies"
             app:constraint_referenced_ids="rvMovies,tvError"/>
-
-        <AutoCompleteTextView
-            android:id="@+id/searchView"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
